@@ -5,6 +5,21 @@
 // ============================================================
 
 const providers = {
+  continueDev: {
+    name: "Continue.dev",
+    icon: "♾️",
+    apiKey: process.env.CONTINUE_API_KEY || "",
+    baseUrl: process.env.CONTINUE_BASE_URL || "https://api.continue.dev/v1",
+    models: [
+      { id: "gpt-4o-mini", name: "GPT-4o Mini", context: 128000 },
+      { id: "claude-3-5-sonnet-latest", name: "Claude 3.5 Sonnet", context: 200000 },
+      { id: "deepseek-chat", name: "DeepSeek Chat", context: 64000 },
+    ],
+    defaultModel: "gpt-4o-mini",
+    type: "openai_compat",
+    dynamicModels: true,
+  },
+
   anthropic: {
     name: "Anthropic (Claude)",
     icon: "🔶",

@@ -1,7 +1,9 @@
 import React from "react";
 import { Terminal, MessageSquare, Settings, GitBranch, Bot, Database,
-         Search, AlertCircle, AlertTriangle, Split } from "lucide-react";
+         Search, AlertCircle, AlertTriangle, Split, SunMedium, MoonStar } from "lucide-react";
 import useStore from "../../store/useStore";
+import { api } from "../../services/api";
+import { normalizeTheme, toggleDayNightTheme } from "../../services/theme";
 
 export default function StatusBar() {
   const {
@@ -12,6 +14,7 @@ export default function StatusBar() {
     searchOpen, setSearchOpen,
     problemsOpen, setProblemsOpen,
     selectedProvider, selectedModel, providers,
+    workspaceSettings, setWorkspaceSettings,
     openTabs, activeTab, indexStats, problems,
     splitTab, closeSplit, openFileSplit,
   } = useStore();
@@ -20,6 +23,7 @@ export default function StatusBar() {
   const providerInfo = providers[selectedProvider];
   const errors   = problems.filter(p => p.severity === "error").length;
   const warnings = problems.filter(p => p.severity === "warning").length;
+  const theme = normalizeTheme(workspaceSettings?.ui?.theme);
 
   const togglePanel = (panel, setter, current) => {
     // Close others, toggle this one
@@ -28,6 +32,19 @@ export default function StatusBar() {
     if (panel !== "git")     setGitOpen(false);
     if (panel !== "search")  setSearchOpen(false);
     setter(!current);
+  };
+
+  const toggleTheme = async () => {
+    const nextTheme = toggleDayNightTheme(theme);
+    try {
+      const updated = await api.patchSettings({ ui: { theme: nextTheme } });
+      setWorkspaceSettings(updated);
+    } catch {
+      setWorkspaceSettings({
+        ...(workspaceSettings || {}),
+        ui: { ...(workspaceSettings?.ui || {}), theme: nextTheme },
+      });
+    }
   };
 
   return (
@@ -101,6 +118,9 @@ export default function StatusBar() {
         <button className={`status-item status-btn ${chatOpen&&!agentOpen&&!gitOpen&&!searchOpen?"active":""}`}
           onClick={() => togglePanel("chat", setChatOpen, chatOpen)} title="Chat (Ctrl+Shift+L)">
           <MessageSquare size={11} />
+        </button>
+        <button className="status-item status-btn theme-toggle-btn" onClick={toggleTheme} title="Toggle day/night theme">
+          {theme === "day" ? <MoonStar size={11} /> : <SunMedium size={11} />} {theme === "hacker" ? "Hacker" : theme === "day" ? "Day" : "Night"}
         </button>
         <button className={`status-item status-btn ${terminalOpen?"active":""}`}
           onClick={() => setTerminalOpen(!terminalOpen)} title="Terminal (Ctrl+`)">

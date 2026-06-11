@@ -4,6 +4,14 @@ const path = require("path");
 const WORKSPACE_ROOT = process.env.WORKSPACE_ROOT || "/workspace";
 const SETTINGS_PATH = path.join(WORKSPACE_ROOT, ".carai", "settings.json");
 
+function normalizeTheme(theme) {
+  if (theme === "day" || theme === "night" || theme === "hacker") return theme;
+  if (theme === "light") return "day";
+  if (theme === "vs-dark") return "night";
+  if (theme === "hc-black") return "hacker";
+  return "night";
+}
+
 const DEFAULTS = {
   editor: {
     fontSize: 14,
@@ -23,9 +31,10 @@ const DEFAULTS = {
     autocompleteMinLength: 3,
     contextLines: 80,
     useCodebaseContext: true,
+    defaultChatProvider: "continueDev",
   },
   ui: {
-    theme: "vs-dark",
+    theme: "night",
     sidebarWidth: 220,
     terminalFontSize: 13,
     showBreadcrumbs: true,
@@ -40,7 +49,9 @@ function load() {
   try {
     if (fs.existsSync(SETTINGS_PATH)) {
       const raw = JSON.parse(fs.readFileSync(SETTINGS_PATH, "utf8"));
-      return deepMerge(DEFAULTS, raw);
+      const merged = deepMerge(DEFAULTS, raw);
+      merged.ui.theme = normalizeTheme(merged.ui?.theme);
+      return merged;
     }
   } catch {}
   return { ...DEFAULTS };

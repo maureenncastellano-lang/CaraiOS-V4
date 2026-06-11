@@ -5,6 +5,10 @@ import { Send, Trash2, Copy, Check, X, AtSign, Database, Bot } from "lucide-reac
 import useStore from "../../store/useStore";
 import { api } from "../../services/api";
 
+function ProviderBadge({ label }) {
+  return <span className="chat-provider-badge">{label}</span>;
+}
+
 function CopyButton({ text }) {
   const [copied, setCopied] = useState(false);
   return (
@@ -96,7 +100,7 @@ export default function ChatSidebar() {
     selectedProvider, selectedModel, setChatOpen, chatOpen,
     openTabs, activeTab, setStatus, fileTree,
     mentionedFiles, addMentionedFile, removeMentionedFile, clearMentionedFiles,
-    setAgentOpen,
+    setAgentOpen, providers,
   } = useStore();
 
   const [input, setInput] = useState("");
@@ -110,6 +114,7 @@ export default function ChatSidebar() {
   }, [chatMessages]);
 
   const activeFile = openTabs.find(t => t.path === activeTab);
+  const providerInfo = providers[selectedProvider];
 
   // Detect @mention typing
   const handleInputChange = (e) => {
@@ -199,7 +204,10 @@ export default function ChatSidebar() {
   return (
     <div className={`chat-sidebar ${chatOpen ? "open" : "closed"}`}>
       <div className="chat-header">
-        <span>🤖 CarAI Chat</span>
+        <div className="chat-header-title">
+          <span>🤖 CarAI Chat</span>
+          <ProviderBadge label={providerInfo?.name || selectedProvider} />
+        </div>
         <div className="chat-header-actions">
           {activeFile && <span className="chat-context-badge" title={activeFile.path}>📄 {activeFile.name}</span>}
           <button title="Open Agent mode" onClick={() => setAgentOpen(true)}><Bot size={13} /></button>
@@ -237,6 +245,10 @@ export default function ChatSidebar() {
       </div>
 
       <div className="chat-input-wrap">
+        <div className="chat-input-meta">
+          <span>Provider: {providerInfo?.name || selectedProvider}</span>
+          <span>Model: {selectedModel || providerInfo?.defaultModel || "default"}</span>
+        </div>
         {mentionQuery !== null && (
           <MentionPicker
             query={mentionQuery}

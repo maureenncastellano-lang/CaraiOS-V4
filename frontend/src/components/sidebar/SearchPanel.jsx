@@ -14,7 +14,7 @@ export default function SearchPanel() {
     if (!query.trim()) return;
     setLoading(true);
     try {
-      const result = await api.searchFiles(query.trim());
+      const result = await api.searchFiles(query.trim(), 20, mode);
       setSearchResults(result.files || []);
     } catch (e) {
       setSearchResults([]);
@@ -67,6 +67,9 @@ export default function SearchPanel() {
 
       {mode === "semantic" && (
         <p className="search-hint">Semantic search finds code by concept, not just keywords.</p>
+      )}
+      {mode === "text" && (
+        <p className="search-hint">Text search matches literal content and nearby lines.</p>
       )}
 
       <div className="search-results">

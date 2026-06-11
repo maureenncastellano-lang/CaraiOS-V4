@@ -14,6 +14,7 @@ import CommandPalette from "./components/editor/CommandPalette";
 import ProblemsPanel from "./components/editor/ProblemsPanel";
 import useStore from "./store/useStore";
 import { api } from "./services/api";
+import { normalizeTheme } from "./services/theme";
 import "./App.css";
 
 const WS_BASE = (process.env.REACT_APP_BACKEND_URL || "http://localhost:3001")
@@ -33,14 +34,24 @@ export default function App() {
   useEffect(() => {
     api.getProviders().then(p => {
       setProviders(p);
-      const configured = Object.entries(p).find(([, v]) => v.configured);
-      if (configured && !localStorage.getItem("carai_provider")) setProvider(configured[0]);
     }).catch(() => setStatus("Backend offline — start the server"));
 
     api.getTree().then(({ tree }) => setFileTree(tree || [])).catch(() => {});
     api.getIndexStatus().then(setIndexStats).catch(() => {});
-    api.getSettings().then(s => setWorkspaceSettings(s)).catch(() => {});
+    api.getSettings().then((s) => {
+      setWorkspaceSettings(s);
+      if (!localStorage.getItem("carai_provider")) {
+        setProvider(s?.ai?.defaultChatProvider || "continueDev");
+      }
+    }).catch(() => {});
   }, []);
+
+  useEffect(() => {
+    const theme = normalizeTheme(workspaceSettings?.ui?.theme);
+    const root = document.documentElement;
+    root.dataset.theme = theme;
+    root.style.colorScheme = theme === "day" ? "light" : "dark";
+  }, [workspaceSettings?.ui?.theme]);
 
   // ── Auto-save via settings ────────────────────────────────
   useEffect(() => {

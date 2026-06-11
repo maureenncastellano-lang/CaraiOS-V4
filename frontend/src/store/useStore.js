@@ -66,7 +66,7 @@ const useStore = create((set, get) => ({
   // ── AI Settings ───────────────────────────────────────────
   providers: {},
   setProviders: (p) => set({ providers: p }),
-  selectedProvider: localStorage.getItem("carai_provider") || "ollama",
+  selectedProvider: localStorage.getItem("carai_provider") || "continueDev",
   selectedModel: localStorage.getItem("carai_model") || "",
 
   setProvider: (id) => {
