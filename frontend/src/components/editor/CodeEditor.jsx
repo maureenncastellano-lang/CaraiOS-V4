@@ -4,7 +4,6 @@ import { X, Save, Zap, Split, ChevronRight } from "lucide-react";
 import useStore from "../../store/useStore";
 import { api } from "../../services/api";
 import { useLSP } from "../../hooks/useLSP";
-import { getMonacoTheme } from "../../services/theme";
 
 // Single editor pane (reused for both main and split)
 function EditorPane({ tabPath, isSplit = false, onClose }) {
@@ -64,7 +63,7 @@ function EditorPane({ tabPath, isSplit = false, onClose }) {
         const text   = model.getValue();
         const prefix = text.slice(0, offset);
         const suffix = text.slice(offset);
-        if (prefix.slice(-1) !== " " && prefix.slice(-1) !== "\n") return { items: [] };
+        if (prefix.slice(-1) !== " " && prefix.slice(-1) !== "\n" && prefix.length % 10 !== 0) return { items: [] };
         try {
           const { completion } = await api.complete({
             providerId: prov, model: mod,
@@ -172,7 +171,7 @@ function EditorPane({ tabPath, isSplit = false, onClose }) {
           key={tabPath}
           language={tabData.language}
           value={tabData.content}
-          theme={getMonacoTheme(workspaceSettings?.ui?.theme)}
+          theme={workspaceSettings?.ui?.theme || "vs-dark"}
           onMount={handleMount}
           onChange={handleChange}
           options={{

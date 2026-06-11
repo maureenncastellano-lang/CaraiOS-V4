@@ -22,10 +22,6 @@ const MAX_FILE_SIZE = 200 * 1024; // 200KB per file
 const CHUNK_SIZE = 80;            // lines per chunk
 const CHUNK_OVERLAP = 10;         // overlap between chunks
 
-function normalizeQuery(query) {
-  return String(query || "").trim().toLowerCase();
-}
-
 // ── Walk workspace ───────────────────────────────────────────
 function* walkDir(dir) {
   let entries;
@@ -150,53 +146,4 @@ function getContext(query, { topK = 6, excludePaths = [], maxTokens = 6000 } = {
   };
 }
 
-function searchText(query, { topK = 20, excludePaths = [] } = {}) {
-  const normalized = normalizeQuery(query);
-  if (!normalized) return { context: "", files: [] };
-
-  const exclude = new Set(excludePaths.map((p) => p.replace(/\\/g, "/")));
-  const matches = [];
-
-  for (const filePath of walkDir(WORKSPACE_ROOT)) {
-    const rel = path.relative(WORKSPACE_ROOT, filePath).replace(/\\/g, "/");
-    if (exclude.has(rel)) continue;
-
-    let content = "";
-    try {
-      content = fs.readFileSync(filePath, "utf8");
-    } catch {
-      continue;
-    }
-
-    const lines = content.split("\n");
-    for (let lineIndex = 0; lineIndex < lines.length; lineIndex++) {
-      const line = lines[lineIndex];
-      const hitIndex = line.toLowerCase().indexOf(normalized);
-      if (hitIndex === -1) continue;
-
-      const startLine = Math.max(0, lineIndex - 2);
-      const endLine = Math.min(lines.length - 1, lineIndex + 2);
-      matches.push({
-        path: rel,
-        score: 1,
-        content: lines.slice(startLine, endLine + 1).join("\n"),
-        chunk: { startLine, endLine, index: 0, total: 1 },
-      });
-      break;
-    }
-  }
-
-  const files = matches.slice(0, topK).map((match) => ({
-    path: match.path,
-    score: match.score,
-    chunk: match.chunk,
-  }));
-
-  const context = matches.slice(0, topK).map((match) => (
-    `### ${match.path} (lines ${match.chunk.startLine + 1}–${match.chunk.endLine + 1})\n\`\`\`\n${match.content}\n\`\`\``
-  )).join("\n\n");
-
-  return { context, files };
-}
-
-module.exports = { indexWorkspace, handleFileEvent, getContext, searchText, indexFile };
+module.exports = { indexWorkspace, handleFileEvent, getContext, indexFile };

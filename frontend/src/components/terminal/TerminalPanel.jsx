@@ -5,14 +5,13 @@ import { WebLinksAddon } from "xterm-addon-web-links";
 import "xterm/css/xterm.css";
 import { X } from "lucide-react";
 import useStore from "../../store/useStore";
-import { getTerminalTheme } from "../../services/theme";
 
 const WS_BASE = (process.env.REACT_APP_BACKEND_URL || "http://localhost:3001")
   .replace("http://", "ws://")
   .replace("https://", "wss://");
 
 export default function TerminalPanel() {
-  const { terminalOpen, setTerminalOpen, workspaceSettings } = useStore();
+  const { terminalOpen, setTerminalOpen } = useStore();
   const containerRef = useRef(null);
   const termRef = useRef(null);
   const wsRef = useRef(null);
@@ -21,9 +20,16 @@ export default function TerminalPanel() {
   useEffect(() => {
     if (!terminalOpen || !containerRef.current) return;
 
-    const theme = getTerminalTheme(workspaceSettings?.ui?.theme);
     const term = new XTerm({
-      theme,
+      theme: {
+        background: "#0d1117",
+        foreground: "#c9d1d9",
+        cursor: "#58a6ff",
+        selectionBackground: "#264f78",
+        black: "#484f58", red: "#ff7b72", green: "#3fb950",
+        yellow: "#d29922", blue: "#58a6ff", magenta: "#bc8cff",
+        cyan: "#39c5cf", white: "#b1bac4",
+      },
       fontFamily: "'JetBrains Mono', 'Fira Code', monospace",
       fontSize: 13,
       cursorBlink: true,
@@ -78,7 +84,7 @@ export default function TerminalPanel() {
       termRef.current = null;
       wsRef.current = null;
     };
-  }, [terminalOpen, workspaceSettings?.ui?.theme]);
+  }, [terminalOpen]);
 
   if (!terminalOpen) return null;
 

@@ -121,17 +121,6 @@ export default function SettingsModal() {
             )}
             {activeTab === "ai" && s.ai && (
               <div className="settings-section">
-                <SelectInput label="Default Chat Provider" value={s.ai.defaultChatProvider || "continueDev"}
-                  options={[
-                    { value: "continueDev", label: "Continue.dev" },
-                    { value: "openrouter", label: "OpenRouter" },
-                    { value: "anthropic", label: "Anthropic" },
-                    { value: "deepseek", label: "DeepSeek" },
-                    { value: "gemini", label: "Gemini" },
-                    { value: "huggingface", label: "Hugging Face" },
-                    { value: "ollama", label: "Ollama" },
-                  ]}
-                  onChange={v=>patch("ai","defaultChatProvider",v)}/>
                 <Toggle label="Inline Autocomplete" value={s.ai.autocompleteEnabled} onChange={v=>patch("ai","autocompleteEnabled",v)}/>
                 <NumberInput label="Autocomplete Delay (ms)" value={s.ai.autocompleteDelay} min={100} max={3000} step={100} onChange={v=>patch("ai","autocompleteDelay",v)}/>
                 <Toggle label="Use Codebase Context in Chat" value={s.ai.useCodebaseContext} onChange={v=>patch("ai","useCodebaseContext",v)}/>
@@ -147,11 +136,7 @@ export default function SettingsModal() {
             {activeTab === "ui" && s.ui && (
               <div className="settings-section">
                 <SelectInput label="Theme" value={s.ui.theme}
-                  options={[
-                    { value: "night", label: "Night" },
-                    { value: "day", label: "Day" },
-                    { value: "hacker", label: "Hacker" },
-                  ]}
+                  options={[{value:"vs-dark",label:"Dark"},{value:"light",label:"Light"},{value:"hc-black",label:"High Contrast"}]}
                   onChange={v=>patch("ui","theme",v)}/>
                 <NumberInput label="Terminal Font Size" value={s.ui.terminalFontSize} min={10} max={24} onChange={v=>patch("ui","terminalFontSize",v)}/>
                 <Toggle label="Show Breadcrumbs" value={s.ui.showBreadcrumbs} onChange={v=>patch("ui","showBreadcrumbs",v)}/>

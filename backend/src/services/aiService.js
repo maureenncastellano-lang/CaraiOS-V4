@@ -192,24 +192,6 @@ async function fetchOllamaModels(baseUrl, apiKey) {
   }
 }
 
-async function fetchOpenAICompatModels(baseUrl, apiKey) {
-  try {
-    const res = await fetch(`${baseUrl}/models`, {
-      headers: apiKey ? { Authorization: `Bearer ${apiKey}` } : {},
-      signal: AbortSignal.timeout(5000),
-    });
-    if (!res.ok) return null;
-    const json = await res.json();
-    return json.data?.map((m) => ({
-      id: m.id,
-      name: m.display_name || m.id,
-      context: m.context_length || 128000,
-    })) || null;
-  } catch {
-    return null;
-  }
-}
-
 // ── SSE stream parser ────────────────────────────────────────
 async function streamSSE(res, onData) {
   const reader = res.body;
@@ -248,7 +230,7 @@ async function callAI({ providerId, model, messages, system, stream = false, onC
     throw new Error(`No API key configured for ${provider.name}`);
   }
 
-  const resolvedModel = model || provider.defaultModel || provider.models?.[0]?.id || "";
+  const resolvedModel = model || provider.defaultModel;
 
   switch (provider.type) {
     case "anthropic":
@@ -275,9 +257,6 @@ async function getProviderStatus() {
 
     if (p.type === "ollama" && p.dynamicModels) {
       const dynamic = await fetchOllamaModels(p.baseUrl, p.apiKey);
-      if (dynamic) models = dynamic;
-    } else if (p.type === "openai_compat" && p.dynamicModels) {
-      const dynamic = await fetchOpenAICompatModels(p.baseUrl, p.apiKey);
       if (dynamic) models = dynamic;
     }
 

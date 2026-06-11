@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef, useMemo } from "react";
 import { Search, File, Zap, GitBranch, Bot, Terminal, Settings,
-         MessageSquare, RefreshCw, Split, Play, Sparkles } from "lucide-react";
+         MessageSquare, RefreshCw, Split } from "lucide-react";
 import useStore from "../../store/useStore";
 import { api, getLanguageFromPath } from "../../services/api";
 
@@ -41,8 +41,6 @@ const BUILTIN_COMMANDS = [
   { id: "split-editor",    label: "Split Editor",    icon: <Split size={13} /> },
   { id: "reindex",         label: "Re-index Workspace", icon: <RefreshCw size={13} /> },
   { id: "open-settings",   label: "Workspace Settings", icon: <Settings size={13} />, shortcut: "Ctrl+," },
-  { id: "run-pyrunner",    label: "Run Python with PyRunner", icon: <Play size={13} /> },
-  { id: "copy-hacker-theme", label: "Switch to Hacker Theme", icon: <Sparkles size={13} /> },
 ];
 
 export default function CommandPalette() {
@@ -57,7 +55,6 @@ export default function CommandPalette() {
     setProblemsOpen,
     setSettingsOpen,
     activeTab, openTabs,
-    workspaceSettings, setWorkspaceSettings,
   } = useStore();
 
   const [query, setQuery] = useState("");
@@ -139,20 +136,6 @@ export default function CommandPalette() {
       case "reindex":
         api.reindex().then(r => useStore.getState().setIndexStats(r));
         break;
-      case "run-pyrunner": {
-        const activeFile = openTabs.find(t => t.path === activeTab);
-        if (!activeFile) break;
-        const result = await api.runPython({ filePath: activeFile.path, cwd: "." });
-        useStore.getState().setStatus(result.ok ? `PyRunner finished (${result.exitCode})` : `PyRunner failed (${result.exitCode})`);
-        setPaletteOpen(false);
-        break;
-      }
-      case "copy-hacker-theme": {
-        const updated = { ...(workspaceSettings || {}), ui: { ...(workspaceSettings?.ui || {}), theme: "hacker" } };
-        await api.patchSettings(updated);
-        setWorkspaceSettings(updated);
-        break;
-      }
     }
   };
 

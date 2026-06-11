@@ -12,7 +12,6 @@ const aiRouter = require("./routes/ai");
 const agentRouter = require("./routes/agent");
 const gitRouter = require("./routes/git");
 const settingsRouter = require("./routes/settings");
-const pythonRouter = require("./routes/python");
 const { indexWorkspace, handleFileEvent } = require("./services/indexer");
 const { handleLSPConnection, stopAll: stopLSP } = require("./services/lspService");
 
@@ -33,7 +32,6 @@ app.use("/api/ai", aiRouter);
 app.use("/api/agent", agentRouter);
 app.use("/api/git", gitRouter);
 app.use("/api/settings", settingsRouter);
-app.use("/api/python", pythonRouter);
 
 app.get("/api/health", (req, res) => {
   res.json({ ok: true, workspace: WORKSPACE_ROOT, time: new Date().toISOString() });

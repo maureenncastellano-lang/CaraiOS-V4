@@ -1,7 +1,7 @@
 const express = require("express");
 const router = express.Router();
 const { runAgent } = require("../services/agentService");
-const { indexWorkspace, getContext, searchText } = require("../services/indexer");
+const { indexWorkspace, getContext, handleFileEvent } = require("../services/indexer");
 const vectorStore = require("../services/vectorStore");
 
 // ── GET /api/agent/index — trigger full reindex ──────────────
@@ -21,10 +21,8 @@ router.get("/index/status", (req, res) => {
 
 // ── POST /api/agent/search — semantic search ──────────────────
 router.post("/search", express.json(), (req, res) => {
-  const { query, topK = 8, excludePaths = [], mode = "semantic" } = req.body;
-  const result = mode === "text"
-    ? searchText(query, { topK, excludePaths })
-    : getContext(query, { topK, excludePaths });
+  const { query, topK = 8, excludePaths = [] } = req.body;
+  const result = getContext(query, { topK, excludePaths });
   res.json(result);
 });
 

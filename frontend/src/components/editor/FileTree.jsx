@@ -135,7 +135,6 @@ function TreeNode({ node, depth = 0 }) {
 
 export default function FileTree() {
   const { fileTree, setFileTree, setStatus } = useStore();
-  const fileInputRef = React.useRef(null);
 
   const refresh = useCallback(async () => {
     setStatus("Refreshing...");
@@ -151,31 +150,15 @@ export default function FileTree() {
     await refresh();
   };
 
-  const uploadFile = async (event) => {
-    const file = event.target.files?.[0];
-    event.target.value = "";
-    if (!file) return;
-    setStatus("Uploading...");
-    try {
-      await api.uploadFile(file);
-      await refresh();
-      setStatus("Ready");
-    } catch (e) {
-      setStatus("Upload failed: " + e.message);
-    }
-  };
-
   return (
     <div className="file-tree">
       <div className="file-tree-header">
         <span>EXPLORER</span>
         <div className="file-tree-header-actions">
           <button title="New File" onClick={newRootFile}><Plus size={13} /></button>
-          <button title="Upload File" onClick={() => fileInputRef.current?.click()}>Upload</button>
           <button title="Refresh" onClick={refresh}><RefreshCw size={13} /></button>
         </div>
       </div>
-      <input ref={fileInputRef} type="file" style={{ display: "none" }} onChange={uploadFile} />
       <div className="file-tree-body">
         {fileTree.length === 0 ? (
           <div className="empty-workspace">
