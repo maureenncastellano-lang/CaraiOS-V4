@@ -1,0 +1,41 @@
+version: "3.9"
+
+services:
+  backend:
+    build: ./backend
+    container_name: carai-backend
+    restart: unless-stopped
+    ports:
+      - "3001:3001"
+    volumes:
+      - workspace:/workspace
+      - ./backend/.env:/app/.env:ro
+      # Mount host git config so commits have your name/email
+      - ~/.gitconfig:/root/.gitconfig:ro
+    environment:
+      - WORKSPACE_ROOT=/workspace
+      - PORT=3001
+    networks:
+      - carai-net
+
+  frontend:
+    build:
+      context: ./frontend
+      args:
+        - REACT_APP_BACKEND_URL=http://localhost:3001
+    container_name: carai-frontend
+    restart: unless-stopped
+    ports:
+      - "3000:80"
+    depends_on:
+      - backend
+    networks:
+      - carai-net
+
+volumes:
+  workspace:
+    driver: local
+
+networks:
+  carai-net:
+    driver: bridge
