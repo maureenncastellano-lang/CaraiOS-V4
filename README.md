@@ -1,4 +1,4 @@
-# CaraiOS-V4
+# DevOS
 
 A self-hosted, browser-based AI coding IDE — run locally or on a VPS using Docker.
 
