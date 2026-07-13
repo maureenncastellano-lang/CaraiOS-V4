@@ -1,133 +1,80 @@
-# ⚡ CarAI IDE
+# CaraiOS-V4
 
-A self-hosted, browser-based AI coding IDE — like Cursor, but yours. Runs anywhere via Docker.
-
-## Feature Matrix
-
-| Feature | Phase |
-|---|---|
-| Monaco Editor (VS Code engine) | ✅ 1 |
-| File tree with CRUD, rename, download | ✅ 1 |
-| Resizable panels (editor / chat / terminal) | ✅ 1 |
-| AI Chat sidebar with streaming | ✅ 1 |
-| CMD+K inline AI edits | ✅ 1 |
-| Integrated terminal (node-pty + xterm.js) | ✅ 1 |
-| Live file watcher (WebSocket) | ✅ 1 |
-| Inline autocomplete (FIM) | ✅ 1+2 |
-| Codebase indexer (TF-IDF semantic search) | ✅ 2 |
-| Multi-file context injection in chat | ✅ 2 |
-| @file mentions in chat | ✅ 2 |
-| Agent mode (read/write/run autonomously) | ✅ 2 |
-| Command Palette (Ctrl+P) | ✅ 3 |
-| Split editor view | ✅ 3 |
-| Git panel (stage/commit/push/pull/diff/branch) | ✅ 3 |
-| Search across files (semantic) | ✅ 3 |
-| Breadcrumb navigation | ✅ 3 |
-| Problems panel | ✅ 4 |
-| LSP bridge (TypeScript, Python, CSS, HTML) | ✅ 4 |
-| Workspace settings (persisted to .carai/) | ✅ 4 |
-| Auto-save | ✅ 4 |
-| Theme switching | ✅ 4 |
-
-## AI Providers
-
-| Provider | Key Variable | Free? |
-|---|---|---|
-| 🔶 Anthropic (Claude) | `ANTHROPIC_API_KEY` | No |
-| 🔀 OpenRouter | `OPENROUTER_API_KEY` | Yes (many models) |
-| 🐋 DeepSeek | `DEEPSEEK_API_KEY` | No |
-| 💎 Google Gemini | `GEMINI_API_KEY` | Yes (limited) |
-| 🤗 Hugging Face | `HF_API_KEY` | Yes |
-| 🦙 Ollama (carai.agency) | `OLLAMA_BASE_URL` | Self-hosted |
+A self-hosted, browser-based AI coding IDE — run locally or on a VPS using Docker.
 
 ## Quick Start
 
+- **Prerequisites:** Docker and Docker Compose (or `docker compose`).
+- Clone the repository and start all services with Docker Compose:
+
 ```bash
-# 1. Clone / unzip
-cd carai-ide
+git clone https://github.com/maureenncastellano-lang/CaraiOS-V4.git
+cd CaraiOS-V4
+# Copy example env (if present) and edit backend/.env with provider keys
+cp backend/.env.example backend/.env || true
 
-# 2. Configure
-cp backend/.env.example backend/.env
-# Edit .env with your API keys
-
-# 3. Launch
 docker-compose up --build
-
-# → Open http://localhost:3000
+# Open http://localhost:3000
 ```
 
-## Keyboard Shortcuts
+## Development (run services individually)
 
-| Shortcut | Action |
-|---|---|
-| `Ctrl+P` | Command Palette / File Search |
-| `Ctrl+S` | Save file |
-| `Ctrl+K` | AI Edit (CMD+K) |
-| `Ctrl+,` | Settings |
-| `Ctrl+\`` | Toggle Terminal |
-| `Ctrl+Shift+L` | Toggle Chat |
-| `Ctrl+Shift+G` | Toggle Git Panel |
-| `Ctrl+Shift+F` | Search across files |
-| `Ctrl+Shift+M` | Problems panel |
-
-## VPS / Production Deployment
+- Backend (API, AI routing, LSP bridge):
 
 ```bash
-# On your VPS, edit docker-compose.yml:
-# REACT_APP_BACKEND_URL=https://api.your-domain.com
+cd backend
+npm install
+npm run dev
+```
 
-# With Caddy for SSL:
-# your-domain.com { reverse_proxy localhost:3000 }
-# api.your-domain.com { reverse_proxy localhost:3001 }
+- Frontend (React app):
 
+```bash
+cd frontend
+npm install
+npm start
+```
+
+## Docker / Production
+
+Use `docker-compose` to build and run in detached mode:
+
+```bash
 docker-compose up -d --build
 ```
 
-## LSP (Diagnostics & Go-to-Definition)
+Configure your reverse proxy (Caddy, Nginx) to forward traffic to the frontend and backend containers.
 
-Language servers run inside the backend container. TypeScript/JS is installed by default.
+## Project layout (high level)
 
-To add Python LSP, uncomment in `backend/Dockerfile`:
-```dockerfile
-RUN pip3 install python-lsp-server
+- **backend/** — API server, WebSocket hub, AI provider routing, indexing, and language-server bridge.
+- **frontend/** — React + Monaco editor, chat UI, terminal, and workspace UI components.
+- **docker-compose.yml** — local development / staging orchestration.
+- **bin/**, **odysseus/**, **storage/** — utility scripts, presets, and sample storage used by the app.
+
+## Environment variables
+
+- The backend expects provider keys and service config in environment variables (see any `.env.example` files in `backend/`). Common variables:
+
+```
+ANTHROPIC_API_KEY
+OPENROUTER_API_KEY
+GEMINI_API_KEY
+HF_API_KEY
+OLLAMA_BASE_URL
 ```
 
-Then rebuild: `docker-compose up --build backend`
+## Contributing
 
-## Project Structure
+- Run linters/tests if present, open a PR against `main`, and describe your changes concisely.
 
-```
-carai-ide/
-├── backend/
-│   ├── src/
-│   │   ├── index.js              # Server entry + WebSocket hub
-│   │   ├── routes/
-│   │   │   ├── files.js          # File CRUD
-│   │   │   ├── ai.js             # Chat, complete, edit, explain
-│   │   │   ├── agent.js          # Agent run + index API
-│   │   │   ├── git.js            # All git operations
-│   │   │   └── settings.js       # Workspace settings
-│   │   └── services/
-│   │       ├── aiProviders.js    # Provider config
-│   │       ├── aiService.js      # Universal AI router
-│   │       ├── agentService.js   # Autonomous agent loop
-│   │       ├── indexer.js        # Workspace indexer
-│   │       ├── vectorStore.js    # TF-IDF semantic search
-│   │       ├── gitService.js     # simple-git wrapper
-│   │       ├── lspService.js     # LSP server bridge
-│   │       └── settingsService.js# Persistent settings
-│   └── Dockerfile
-├── frontend/
-│   └── src/
-│       ├── App.jsx               # Root layout + shortcuts
-│       ├── store/useStore.js     # Zustand global state
-│       ├── services/api.js       # Backend API client
-│       ├── hooks/useLSP.js       # LSP WebSocket hook
-│       └── components/
-│           ├── editor/           # Monaco, tabs, breadcrumb,
-│           │                       CMD+K, palette, problems
-│           ├── sidebar/          # Chat, agent, git, search
-│           ├── terminal/         # xterm.js
-│           └── settings/         # Tabbed settings modal
-└── docker-compose.yml
-```
+## License
+
+This project is licensed under the Creative Commons Attribution-NonCommercial 4.0 International (CC BY-NC 4.0). See [LICENSE](LICENSE) for details. Commercial use is not permitted without explicit permission from the copyright holder.
+
+---
+
+If you'd like, I can also:
+
+- Add a short `backend/README.md` and `frontend/README.md` with dev commands.
+- Commit the README update and push the branch.
