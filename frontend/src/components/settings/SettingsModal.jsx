@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { X, CheckCircle, AlertCircle, ExternalLink, Save } from "lucide-react";
+import { X, CheckCircle, AlertCircle, ExternalLink, Save, SlidersHorizontal } from "lucide-react";
 import useStore from "../../store/useStore";
 import { api } from "../../services/api";
 
@@ -63,7 +63,10 @@ export default function SettingsModal() {
     <div className="modal-overlay" onClick={e => { if (e.target === e.currentTarget) setSettingsOpen(false); }}>
       <div className="settings-modal wide">
         <div className="settings-header">
-          <h2>⚙️ Settings</h2>
+          <div className="settings-header-title">
+            <SlidersHorizontal size={15} />
+            <h2>Workspace settings</h2>
+          </div>
           <button onClick={() => setSettingsOpen(false)}><X size={16} /></button>
         </div>
         <div className="settings-layout">

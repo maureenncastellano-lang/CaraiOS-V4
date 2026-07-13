@@ -3,7 +3,7 @@ import { Terminal as XTerm } from "xterm";
 import { FitAddon } from "xterm-addon-fit";
 import { WebLinksAddon } from "xterm-addon-web-links";
 import "xterm/css/xterm.css";
-import { X } from "lucide-react";
+import { TerminalSquare, X } from "lucide-react";
 import useStore from "../../store/useStore";
 import { BASE } from "../../services/api";
 
@@ -51,7 +51,7 @@ export default function TerminalPanel() {
     wsRef.current = ws;
 
     ws.onopen = () => {
-      term.writeln("\x1b[32m● CarAI Terminal connected\x1b[0m");
+      term.writeln("\x1b[32m● DevOS terminal connected\x1b[0m");
     };
     ws.onmessage = (e) => {
       try {
@@ -92,7 +92,10 @@ export default function TerminalPanel() {
   return (
     <div className="terminal-panel">
       <div className="terminal-header">
-        <span>⚡ Terminal</span>
+        <div className="terminal-header-title">
+          <TerminalSquare size={13} />
+          <span>Terminal</span>
+        </div>
         <button onClick={() => setTerminalOpen(false)}><X size={13} /></button>
       </div>
       <div ref={containerRef} className="terminal-body" />

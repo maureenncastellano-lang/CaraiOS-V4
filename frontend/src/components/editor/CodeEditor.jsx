@@ -1,6 +1,6 @@
 import React, { useRef, useCallback, useEffect, useState } from "react";
 import Editor from "@monaco-editor/react";
-import { X, Save, Zap, Split, ChevronRight } from "lucide-react";
+import { X, Save, Sparkles, Split, ChevronRight } from "lucide-react";
 import useStore from "../../store/useStore";
 import { api } from "../../services/api";
 import { useLSP } from "../../hooks/useLSP";
@@ -135,10 +135,10 @@ function EditorPane({ tabPath, isSplit = false, onClose }) {
   if (!tabData) return (
     <div className="editor-empty">
       <div className="editor-empty-content">
-        <span className="editor-empty-icon">⌨️</span>
-        <h3>CarAI IDE</h3>
-        <p>Open a file from the explorer</p>
-        <p className="editor-empty-hint">Ctrl+P — files &nbsp;|&nbsp; Ctrl+K — AI edit &nbsp;|&nbsp; Ctrl+` — terminal</p>
+        <span className="editor-empty-icon"><Sparkles size={40} /></span>
+        <h3>Workspace ready</h3>
+        <p>Open a file from the explorer to begin.</p>
+        <p className="editor-empty-hint">Ctrl+P — search &nbsp;|&nbsp; Ctrl+K — AI edit &nbsp;|&nbsp; Ctrl+` — terminal</p>
       </div>
     </div>
   );
@@ -160,7 +160,7 @@ function EditorPane({ tabPath, isSplit = false, onClose }) {
           </button>
           <button className="tab-action cmdk-btn" title="AI Edit (Ctrl+K)"
             onClick={() => setCmdkOpen(true, { selectedCode: "", language: tabData.language })}>
-            <Zap size={12} /> CMD+K
+            <Sparkles size={12} /> AI edit
           </button>
           {isSplit && <button className="tab-action" onClick={onClose} title="Close split"><X size={12} /></button>}
         </div>

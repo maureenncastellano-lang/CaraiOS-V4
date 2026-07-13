@@ -1,7 +1,7 @@
 import React, { useState, useRef, useEffect, useCallback } from "react";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
-import { Send, Trash2, Copy, Check, X, AtSign, Database, Bot } from "lucide-react";
+import { Send, Trash2, Copy, Check, X, AtSign, Database, Bot, Sparkles } from "lucide-react";
 import useStore from "../../store/useStore";
 import { api } from "../../services/api";
 
@@ -199,9 +199,12 @@ export default function ChatSidebar() {
   return (
     <div className={`chat-sidebar ${chatOpen ? "open" : "closed"}`}>
       <div className="chat-header">
-        <span>🤖 CarAI Chat</span>
+        <div className="chat-header-title">
+          <Sparkles size={13} />
+          <span>Intelligence</span>
+        </div>
         <div className="chat-header-actions">
-          {activeFile && <span className="chat-context-badge" title={activeFile.path}>📄 {activeFile.name}</span>}
+          {activeFile && <span className="chat-context-badge" title={activeFile.path}>{activeFile.name}</span>}
           <button title="Open Agent mode" onClick={() => setAgentOpen(true)}><Bot size={13} /></button>
           <button title="Clear chat" onClick={() => { clearChat(); clearMentionedFiles(); }}><Trash2 size={13} /></button>
           <button title="Close" onClick={() => setChatOpen(false)}><X size={13} /></button>
@@ -224,7 +227,7 @@ export default function ChatSidebar() {
       <div className="chat-messages">
         {chatMessages.length === 0 && (
           <div className="chat-empty">
-            <p>Ask about your code. Type <code>@filename</code> to pin a file.</p>
+            <p>Ask about your code, architecture, or next move. Type <code>@filename</code> to pin a file.</p>
             <div className="chat-suggestions">
               {["Explain the active file", "Find bugs in this code", "Write tests for this function", "Refactor for readability"].map(s => (
                 <button key={s} className="suggestion-chip" onClick={() => setInput(s)}>{s}</button>
@@ -252,7 +255,7 @@ export default function ChatSidebar() {
             value={input}
             onChange={handleInputChange}
             onKeyDown={handleKey}
-            placeholder="Ask CarAI… (@file to pin, Enter to send)"
+            placeholder="Ask DevOS… (@file to pin, Enter to send)"
             disabled={loading}
             rows={3}
           />
