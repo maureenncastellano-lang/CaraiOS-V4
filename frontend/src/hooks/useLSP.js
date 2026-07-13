@@ -1,7 +1,8 @@
 import { useEffect, useRef, useCallback } from "react";
 import useStore from "../store/useStore";
+import { BASE } from "../services/api";
 
-const WS_BASE = (process.env.REACT_APP_BACKEND_URL || "http://localhost:3001")
+const WS_BASE = (BASE || "https://devos.carai.agency")
   .replace("http://", "ws://")
   .replace("https://", "wss://");
 

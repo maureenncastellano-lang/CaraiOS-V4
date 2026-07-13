@@ -1,4 +1,4 @@
-import React, { useEffect, useCallback } from "react";
+import React, { useEffect, useCallback, useState } from "react";
 import { Panel, PanelGroup, PanelResizeHandle } from "react-resizable-panels";
 import FileTree from "./components/editor/FileTree";
 import CodeEditor from "./components/editor/CodeEditor";
@@ -13,13 +13,43 @@ import CmdKModal from "./components/editor/CmdKModal";
 import CommandPalette from "./components/editor/CommandPalette";
 import ProblemsPanel from "./components/editor/ProblemsPanel";
 import useStore from "./store/useStore";
-import { api } from "./services/api";
+import { api, BASE } from "./services/api";
 import "./App.css";
 
-const WS_BASE = (process.env.REACT_APP_BACKEND_URL || "http://localhost:3001")
-  .replace("http://", "ws://").replace("https://", "wss://");
+const WS_BASE = (BASE || "https://devos.carai.agency")
+  .replace("http://", "ws://")
+  .replace("https://", "wss://");
 
-export default function App() {
+class ErrorBoundary extends React.Component {
+  constructor(props) {
+    super(props);
+    this.state = { hasError: false, error: null };
+  }
+
+  static getDerivedStateFromError(error) {
+    return { hasError: true, error };
+  }
+
+  componentDidCatch(error) {
+    console.error("React render error:", error);
+  }
+
+  render() {
+    if (this.state.hasError) {
+      return (
+        <div className="app error-state">
+          <h2>Something went wrong</h2>
+          <p>The interface hit an unexpected error. Please refresh the page and try again.</p>
+          <pre>{this.state.error?.message || "Unknown error"}</pre>
+        </div>
+      );
+    }
+    return this.props.children;
+  }
+}
+
+function AppShell() {
+  const [bootError, setBootError] = useState(null);
   const {
     setFileTree, setProviders, setProvider,
     chatOpen, terminalOpen, agentOpen, gitOpen, searchOpen, problemsOpen,
@@ -31,15 +61,41 @@ export default function App() {
 
   // ── Boot: load providers, tree, settings ─────────────────
   useEffect(() => {
-    api.getProviders().then(p => {
-      setProviders(p);
-      const configured = Object.entries(p).find(([, v]) => v.configured);
-      if (configured && !localStorage.getItem("carai_provider")) setProvider(configured[0]);
-    }).catch(() => setStatus("Backend offline — start the server"));
+    const loadInitialData = async () => {
+      try {
+        const providers = await api.getProviders();
+        setProviders(providers || {});
+        const configured = Object.entries(providers || {}).find(([, v]) => v?.configured);
+        if (configured && !localStorage.getItem("carai_provider")) setProvider(configured[0]);
+      } catch (error) {
+        console.error("Provider boot error:", error);
+        setStatus(`Backend unavailable: ${error.message || "connection failed"}`);
+        setBootError(error);
+      }
 
-    api.getTree().then(({ tree }) => setFileTree(tree || [])).catch(() => {});
-    api.getIndexStatus().then(setIndexStats).catch(() => {});
-    api.getSettings().then(s => setWorkspaceSettings(s)).catch(() => {});
+      try {
+        const treeResponse = await api.getTree();
+        setFileTree(treeResponse?.tree || []);
+      } catch (error) {
+        console.error("Tree boot error:", error);
+      }
+
+      try {
+        const index = await api.getIndexStatus();
+        setIndexStats(index);
+      } catch (error) {
+        console.error("Index boot error:", error);
+      }
+
+      try {
+        const settings = await api.getSettings();
+        setWorkspaceSettings(settings);
+      } catch (error) {
+        console.error("Settings boot error:", error);
+      }
+    };
+
+    loadInitialData();
   }, []);
 
   // ── Auto-save via settings ────────────────────────────────
@@ -87,6 +143,16 @@ export default function App() {
 
   // Which right panel is open
   const rightPanel = agentOpen ? "agent" : gitOpen ? "git" : searchOpen ? "search" : chatOpen ? "chat" : null;
+
+  if (bootError) {
+    return (
+      <div className="app error-state">
+        <h2>Connection issue</h2>
+        <p>The app could not reach the backend at {BASE}.</p>
+        <p>Please refresh or contact support if this persists.</p>
+      </div>
+    );
+  }
 
   return (
     <div className="app">
@@ -153,5 +219,13 @@ export default function App() {
       <CmdKModal />
       <CommandPalette />
     </div>
+  );
+}
+
+export default function App() {
+  return (
+    <ErrorBoundary>
+      <AppShell />
+    </ErrorBoundary>
   );
 }

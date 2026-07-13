@@ -3,7 +3,7 @@ WORKDIR /app
 COPY package*.json ./
 RUN npm install
 COPY . .
-ARG REACT_APP_BACKEND_URL=http://localhost:3001
+ARG REACT_APP_BACKEND_URL=https://devos.carai.agency
 ENV REACT_APP_BACKEND_URL=$REACT_APP_BACKEND_URL
 RUN npm run build
 
