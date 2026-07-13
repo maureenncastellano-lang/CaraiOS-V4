@@ -1,5 +1,6 @@
 import React, { useEffect, useCallback, useState } from "react";
 import { Panel, PanelGroup, PanelResizeHandle } from "react-resizable-panels";
+import { Command, Sparkles } from "lucide-react";
 import FileTree from "./components/editor/FileTree";
 import CodeEditor from "./components/editor/CodeEditor";
 import ChatSidebar from "./components/sidebar/ChatSidebar";
@@ -12,6 +13,8 @@ import SettingsModal from "./components/settings/SettingsModal";
 import CmdKModal from "./components/editor/CmdKModal";
 import CommandPalette from "./components/editor/CommandPalette";
 import ProblemsPanel from "./components/editor/ProblemsPanel";
+import DevOSHome from "./components/os/DevOSHome";
+import { AgentStatusCard, NotificationCenter, SystemMonitor } from "./components/os/DevOSSystemCards";
 import useStore from "./store/useStore";
 import { api, BASE } from "./services/api";
 import "./App.css";
@@ -57,6 +60,7 @@ function AppShell() {
     workspaceSettings,
     setPaletteOpen, setSearchOpen, setSettingsOpen, setGitOpen,
     setTerminalOpen, setChatOpen, setAgentOpen, setProblemsOpen,
+    activeTab,
   } = useStore();
 
   // ── Boot: load providers, tree, settings ─────────────────
@@ -157,12 +161,26 @@ function AppShell() {
   return (
     <div className="app">
       {/* Title bar */}
-      <div className="title-bar">
-        <span className="title-logo">⚡ CarAI IDE</span>
-        <button className="title-palette-btn" onClick={() => setPaletteOpen(true)}>
-          🔍 Search files… <kbd>Ctrl+P</kbd>
+      <div className="devos-title-bar">
+        <div className="devos-title-brand">
+          <div className="devos-title-icon">
+            <Sparkles size={14} />
+          </div>
+          <div>
+            <strong>DevOS</strong>
+            <span>AI engineering workstation</span>
+          </div>
+        </div>
+        <button className="devos-command-bar" onClick={() => setPaletteOpen(true)}>
+          <Command size={14} />
+          <span>Search files, actions, agents…</span>
+          <kbd>Ctrl+P</kbd>
         </button>
-        <span className="title-hint">Ctrl+K — AI &nbsp;·&nbsp; Ctrl+` — Terminal &nbsp;·&nbsp; Ctrl+Shift+G — Git</span>
+        <div className="devos-title-actions">
+          <button className="devos-pill">Build</button>
+          <button className="devos-pill">Agents</button>
+          <button className="devos-pill">Composer</button>
+        </div>
       </div>
 
       {/* Main layout */}
@@ -178,7 +196,7 @@ function AppShell() {
           <Panel minSize={30} className="panel-editor">
             <PanelGroup direction="vertical">
               <Panel minSize={25}>
-                <CodeEditor />
+                {activeTab ? <CodeEditor /> : <DevOSHome />}
               </Panel>
               {problemsOpen && (
                 <>
@@ -207,7 +225,25 @@ function AppShell() {
                 {rightPanel === "agent"  && <AgentPanel />}
                 {rightPanel === "git"    && <GitPanel />}
                 {rightPanel === "search" && <SearchPanel />}
-                {rightPanel === "chat"   && <ChatSidebar />}
+                {rightPanel === "chat"   && (
+                  <div className="devos-intelligence-panel">
+                    <div className="devos-intelligence-header">
+                      <div>
+                        <p className="devos-intelligence-eyebrow">AI command center</p>
+                        <h3>Nuha is ready</h3>
+                      </div>
+                      <span className="devos-status-pill">3 agents working</span>
+                    </div>
+                    <div className="devos-intelligence-grid">
+                      <AgentStatusCard />
+                      <SystemMonitor />
+                      <NotificationCenter />
+                    </div>
+                    <div className="devos-chat-surface">
+                      <ChatSidebar />
+                    </div>
+                  </div>
+                )}
               </Panel>
             </>
           )}
