@@ -20,7 +20,10 @@
   },
   "scripts": {
     "start": "react-scripts start",
-    "build": "react-scripts build"
+    "build": "cross-env NODE_OPTIONS=--max_old_space_size=4096 react-scripts build"
+  },
+  "devDependencies": {
+    "cross-env": "^7.0.3"
   },
   "browserslist": {
     "production": [">0.2%", "not dead", "not op_mini all"],
