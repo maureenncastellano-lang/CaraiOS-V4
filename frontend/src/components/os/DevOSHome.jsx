@@ -8,6 +8,7 @@ const quickActions = [
     shortcut: "⌘B",
     icon: Zap,
     accent: "violet",
+    action: "build",
   },
   {
     title: "Agents",
@@ -15,20 +16,23 @@ const quickActions = [
     shortcut: "⌘A",
     icon: Bot,
     accent: "cyan",
+    action: "agents",
   },
   {
-    title: "Composer",
-    description: "Generate and modify code",
-    shortcut: "⌘K",
+    title: "Brain",
+    description: "Open the live intelligence workspace",
+    shortcut: "⌘⇧L",
     icon: Sparkles,
     accent: "violet",
+    action: "brain",
   },
   {
-    title: "Intelligence Search",
+    title: "Search",
     description: "Find anything instantly",
     shortcut: "⌘⇧F",
     icon: Compass,
     accent: "cyan",
+    action: "search",
   },
   {
     title: "Terminal",
@@ -36,10 +40,19 @@ const quickActions = [
     shortcut: "⌘`",
     icon: TerminalSquare,
     accent: "violet",
+    action: "terminal",
+  },
+  {
+    title: "Settings",
+    description: "Tune workspace behavior and appearance",
+    shortcut: "⌘,",
+    icon: MessageSquareText,
+    accent: "cyan",
+    action: "settings",
   },
 ];
 
-export default function DevOSHome() {
+export default function DevOSHome({ onAction }) {
   return (
     <div className="devos-home-shell">
       <div className="devos-ambient ambient-one" />
@@ -86,8 +99,8 @@ export default function DevOSHome() {
       </section>
 
       <section className="devos-quick-actions">
-        {quickActions.map(({ title, description, shortcut, icon: Icon, accent }) => (
-          <button key={title} className={`devos-action-card ${accent}`}>
+        {quickActions.map(({ title, description, shortcut, icon: Icon, accent, action }) => (
+          <button key={title} className={`devos-action-card ${accent}`} onClick={() => onAction?.(action)}>
             <div className="devos-action-icon">
               <Icon size={18} />
             </div>

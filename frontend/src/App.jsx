@@ -1,6 +1,6 @@
 import React, { useEffect, useCallback, useState } from "react";
 import { Panel, PanelGroup, PanelResizeHandle } from "react-resizable-panels";
-import { Command, Sparkles } from "lucide-react";
+import { Bot, Brain, Command, GitBranch, MoonStar, Search, Settings, Sparkles, SunMedium, TerminalSquare } from "lucide-react";
 import FileTree from "./components/editor/FileTree";
 import CodeEditor from "./components/editor/CodeEditor";
 import ChatSidebar from "./components/sidebar/ChatSidebar";
@@ -17,6 +17,7 @@ import DevOSHome from "./components/os/DevOSHome";
 import { AgentStatusCard, NotificationCenter, SystemMonitor } from "./components/os/DevOSSystemCards";
 import useStore from "./store/useStore";
 import { api, BASE } from "./services/api";
+import { normalizeTheme } from "./services/theme";
 import "./App.css";
 
 const WS_BASE = (BASE || "https://devos.carai.agency")
@@ -63,6 +64,9 @@ function AppShell() {
     activeTab,
   } = useStore();
 
+  const currentThemeValue = workspaceSettings?.ui?.theme || "vs-dark";
+  const currentThemeMode = normalizeTheme(currentThemeValue);
+
   // ── Boot: load providers, tree, settings ─────────────────
   useEffect(() => {
     const loadInitialData = async () => {
@@ -101,6 +105,56 @@ function AppShell() {
 
     loadInitialData();
   }, []);
+
+  useEffect(() => {
+    document.documentElement.setAttribute("data-theme", currentThemeMode);
+  }, [currentThemeMode]);
+
+  const handleThemeToggle = useCallback(() => {
+    const nextThemeValue = normalizeTheme(currentThemeValue) === "day" ? "vs-dark" : "light";
+    setWorkspaceSettings({
+      ...(workspaceSettings || {}),
+      ui: {
+        ...(workspaceSettings?.ui || {}),
+        theme: nextThemeValue,
+      },
+    });
+  }, [currentThemeValue, setWorkspaceSettings, workspaceSettings]);
+
+  const openRightPanel = useCallback((panel) => {
+    setAgentOpen(panel === "agent");
+    setGitOpen(panel === "git");
+    setSearchOpen(panel === "search");
+    setChatOpen(panel === "chat");
+  }, [setAgentOpen, setChatOpen, setGitOpen, setSearchOpen]);
+
+  const handleHomeAction = useCallback((action) => {
+    switch (action) {
+      case "build":
+        setPaletteOpen(true);
+        break;
+      case "agents":
+        openRightPanel("agent");
+        break;
+      case "brain":
+        openRightPanel("chat");
+        break;
+      case "search":
+        openRightPanel("search");
+        break;
+      case "terminal":
+        setTerminalOpen(true);
+        break;
+      case "git":
+        openRightPanel("git");
+        break;
+      case "settings":
+        setSettingsOpen(true);
+        break;
+      default:
+        break;
+    }
+  }, [openRightPanel, setPaletteOpen, setSettingsOpen, setTerminalOpen]);
 
   // ── Auto-save via settings ────────────────────────────────
   useEffect(() => {
@@ -177,9 +231,29 @@ function AppShell() {
           <kbd>Ctrl+P</kbd>
         </button>
         <div className="devos-title-actions">
-          <button className="devos-pill">Build</button>
-          <button className="devos-pill">Agents</button>
-          <button className="devos-pill">Composer</button>
+          <button className={`devos-pill devos-theme-toggle ${currentThemeMode === "day" ? "active" : ""}`} onClick={handleThemeToggle}>
+            <span className="devos-theme-knob" />
+            {currentThemeMode === "day" ? <MoonStar size={13} /> : <SunMedium size={13} />}
+            <span>{currentThemeMode === "day" ? "Night" : "Day"}</span>
+          </button>
+          <button className="devos-pill" onClick={() => handleHomeAction("build")}>
+            <Command size={13} /> Build
+          </button>
+          <button className="devos-pill" onClick={() => handleHomeAction("agents")}>
+            <Bot size={13} /> Agents
+          </button>
+          <button className="devos-pill" onClick={() => handleHomeAction("brain")}>
+            <Brain size={13} /> Brain
+          </button>
+          <button className="devos-pill" onClick={() => handleHomeAction("search")}>
+            <Search size={13} /> Search
+          </button>
+          <button className="devos-pill" onClick={() => handleHomeAction("terminal")}>
+            <TerminalSquare size={13} /> Terminal
+          </button>
+          <button className="devos-pill" onClick={() => handleHomeAction("settings")}>
+            <Settings size={13} /> Settings
+          </button>
         </div>
       </div>
 
@@ -196,7 +270,7 @@ function AppShell() {
           <Panel minSize={30} className="panel-editor">
             <PanelGroup direction="vertical">
               <Panel minSize={25}>
-                {activeTab ? <CodeEditor /> : <DevOSHome />}
+                {activeTab ? <CodeEditor /> : <DevOSHome onAction={handleHomeAction} />}
               </Panel>
               {problemsOpen && (
                 <>

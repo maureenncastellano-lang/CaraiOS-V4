@@ -24,6 +24,69 @@
   --font-ui: Inter, 'SF Pro Display', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
 }
 
+:root[data-theme="day"] {
+  --bg-0: #f5f3ee;
+  --bg-1: #fcfbf8;
+  --bg-2: #f0e9de;
+  --bg-3: #e7dfd1;
+  --bg-4: #ddd0ba;
+  --border: rgba(15, 23, 42, 0.10);
+  --border-strong: rgba(15, 23, 42, 0.16);
+  --text-0: #14213d;
+  --text-1: #24344f;
+  --text-2: #516074;
+  --text-3: #74839b;
+  --accent: #3f7dff;
+  --accent-2: #0f766e;
+  --accent-3: #7c3aed;
+  --green: #078b57;
+  --red: #c2410c;
+  --yellow: #a16207;
+  --purple: #7c3aed;
+}
+
+:root[data-theme="night"] {
+  --bg-0: #0e1017;
+  --bg-1: #171a23;
+  --bg-2: #1d2230;
+  --bg-3: #252b3d;
+  --bg-4: #31394c;
+  --border: rgba(255,255,255,0.10);
+  --border-strong: rgba(255,255,255,0.16);
+  --text-0: #f6f2ff;
+  --text-1: #ded8e8;
+  --text-2: #9ca4b8;
+  --text-3: #6f7791;
+  --accent: #8b7dff;
+  --accent-2: #5ee7ff;
+  --accent-3: #b892ff;
+  --green: #56d39d;
+  --red: #ff7d83;
+  --yellow: #ffc96b;
+  --purple: #b590ff;
+}
+
+:root[data-theme="hacker"] {
+  --bg-0: #04110a;
+  --bg-1: #071b10;
+  --bg-2: #0c2615;
+  --bg-3: #12351d;
+  --bg-4: #1a4726;
+  --border: rgba(74, 222, 128, 0.16);
+  --border-strong: rgba(74, 222, 128, 0.24);
+  --text-0: #edfff1;
+  --text-1: #d8fde0;
+  --text-2: #98f1b4;
+  --text-3: #66c98b;
+  --accent: #22c55e;
+  --accent-2: #4ade80;
+  --accent-3: #86efac;
+  --green: #4ade80;
+  --red: #fb7185;
+  --yellow: #bef264;
+  --purple: #86efac;
+}
+
 html, body, #root { height: 100%; overflow: hidden; background: radial-gradient(circle at top left, rgba(139,125,255,0.18), transparent 28%), var(--bg-0); color: var(--text-0); font-family: var(--font-ui); font-size: 13px; }
 body { -webkit-font-smoothing: antialiased; }
 button { background: none; border: none; cursor: pointer; color: inherit; font: inherit; }
@@ -69,8 +132,11 @@ input:focus, textarea:focus, select:focus { border-color: rgba(139,125,255,0.45)
 .devos-command-bar span { flex: 1; font-size: 12px; }
 .devos-command-bar kbd { font-size: 10px; color: var(--text-3); padding: 2px 6px; border-radius: 999px; background: rgba(255,255,255,0.06); }
 .devos-title-actions { display: flex; gap: 8px; }
-.devos-pill { padding: 6px 10px; font-size: 11px; border: 1px solid var(--border); border-radius: 999px; color: var(--text-2); background: rgba(255,255,255,0.02); }
-.devos-pill:hover { color: var(--text-0); border-color: rgba(94,231,255,0.4); }
+.devos-pill { display: inline-flex; align-items: center; gap: 6px; padding: 6px 10px; font-size: 11px; border: 1px solid var(--border); border-radius: 999px; color: var(--text-2); background: rgba(255,255,255,0.02); transition: all .2s ease; }
+.devos-pill:hover { color: var(--text-0); border-color: rgba(94,231,255,0.4); transform: translateY(-1px); }
+.devos-theme-toggle { position: relative; padding-right: 12px; }
+.devos-theme-toggle .devos-theme-knob { width: 16px; height: 16px; border-radius: 999px; background: linear-gradient(135deg, rgba(139,125,255,0.8), rgba(94,231,255,0.8)); box-shadow: inset 0 1px 1px rgba(255,255,255,0.4); }
+.devos-theme-toggle.active { color: var(--text-0); border-color: rgba(139,125,255,0.4); background: rgba(139,125,255,0.12); }
 
 .main-layout { flex: 1; overflow: hidden; padding: 10px 10px 0; }
 .panel-group { height: 100%; gap: 10px; }
@@ -651,6 +717,7 @@ input:focus, textarea:focus, select:focus { border-color: rgba(139,125,255,0.45)
 .devos-hero-metrics span { font-size: 11px; color: var(--text-2); }
 .devos-quick-actions { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; }
 .devos-action-card { display: flex; align-items: start; gap: 10px; padding: 12px; border-radius: 16px; text-align: left; border: 1px solid rgba(255,255,255,0.08); background: rgba(255,255,255,0.03); transition: transform .2s ease, border-color .2s ease, box-shadow .2s ease; animation: cardRise .55s ease both; }
+.devos-action-card:hover { transform: translateY(-2px); border-color: rgba(94,231,255,0.28); box-shadow: 0 12px 24px rgba(0,0,0,0.14); }
 .devos-action-card:hover { transform: translateY(-3px); border-color: rgba(139,125,255,0.36); box-shadow: 0 18px 30px rgba(0,0,0,0.22); }
 .devos-action-card.violet .devos-action-icon { color: var(--accent-3); background: rgba(139,125,255,0.16); }
 .devos-action-card.cyan .devos-action-icon { color: var(--accent-2); background: rgba(94,231,255,0.14); }
